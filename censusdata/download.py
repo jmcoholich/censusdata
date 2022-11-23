@@ -42,7 +42,8 @@ def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt
 	1. All variables being queried are subject variables (skipping this for speed)
 	2. add '/subject' to URL
 	'''
-	if params['get'].split(',')[1][0] == "S":
+	temp = params['get'].split(',')
+	if len(temp) > 1 and temp[1][0] == "S":
 		subject = '/subject'
 	else:
 		subject = ''
