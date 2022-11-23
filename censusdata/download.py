@@ -30,7 +30,18 @@ def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt
 		if endpt == 'new' or endpt == '': presrc = 'dec/'
 		if endpt == 'old': presrc = ''
 	else: presrc = ''
-	url = baseurl + str(year) + '/' + presrc + src + '?' + '&'.join('='.join(param) for param in params.items())
+	'''
+	If querying subject tables (variable/table names that start with 'S'), make
+	sure that
+	1. All variables being queried are subject variables (skipping this for speed)
+	2. add '/subject' to URL
+	'''
+	if params['get'].split(',')[1][0] == "S":
+		subject = '/subject'
+	else:
+		subject = ''
+
+	url = baseurl + str(year) + '/' + presrc + src + subject + '?' + '&'.join('='.join(param) for param in params.items())
 	r = requests.get(url)
 	try:
 		data = r.json()
