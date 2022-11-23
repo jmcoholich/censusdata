@@ -25,7 +25,8 @@ def censusvar(src, year, var):
 
 		censusdata.censusvar('sf1', 2010, ['P001001']) # Returns information on the variable P0010001 from the 2010 Census SF1.
 	"""
-	assert src == 'acs1' or src == 'acs3' or src == 'acs5' or src == 'acsse' or src == 'sf1'
+	assert src == 'acs1' or src == 'acs3' or src == 'acs5' or src == 'acsse' or src == 'sf1' \
+		or src == "census_2020"
 	ret = dict()
 	for v in var:
 		if src == 'acsse' or src == 'sf1' or v[0] == 'B':
@@ -58,7 +59,7 @@ def censusvar(src, year, var):
 			assert [k for k in sorted(data.keys()) if k != 'attributes' and k != 'concept' and k != 'predicateType'] == expectedKeys
 		except AssertionError:
 			print(u'JSON variable information does not include expected keys ({0} and possibly attributes, concept, predicateType) or includes extra keys: '.format(expectedKeys), data)
-		try: 
+		try:
 			ret[v] = [data.get('concept', ''), data['label'], data.get('predicateType', '')] # Concept, predicate type not provided for all years; default to empty if not provided
 		except KeyError:
 			raise KeyError(u'JSON variable information does not include expected keys: ', data)
@@ -130,7 +131,8 @@ def printtable(table, moe=False):
 		if not moe and k[-1] == 'M': continue # don't clutter output with margins of error
 		label = table[k]['label']
 		label = '!! '*label.count('!!') + label.replace('!!', ' ')
-		print(u'{0:12} | {1:30.30} | {2:56.56} | {3:5}'.format(k, table[k]['concept'], label, table[k]['predicateType']))
+		# print(u'{0:12} | {1:30.30} | {2:56.56} | {3:5}'.format(k, table[k]['concept'], label, table[k]['predicateType']))
+		print(u'{0:12} | {2:100} '.format(k, table[k]['concept'], label, table[k]['predicateType']))
 	print(u'-'*115)
 	return None
 
@@ -153,9 +155,9 @@ def search(src, year, field, criterion, tabletype='detail'):
 	Examples::
 
 		# Search for ACS 2011-2015 5-year estimate variables where the concept includes the text 'unweighted sample'.
-		censusdata.search('acs5', 2015, 'concept', 'unweighted sample') 
+		censusdata.search('acs5', 2015, 'concept', 'unweighted sample')
 		# Search for ACS 2011-2015 5-year estimate variables where the specific variable label includes the text 'unemploy'.
-		censusdata.search('acs5', 2015, 'label', 'unemploy') 
+		censusdata.search('acs5', 2015, 'label', 'unemploy')
 		# Search for ACS 2011-2015 5-year estimate variables where the concept includes the text 'unweighted sample' and the text 'housing'.
 		censusdata.search('acs5', 2015, 'concept', lambda value: re.search('unweighted sample', value, re.IGNORECASE) and re.search('housing', value, re.IGNORECASE))
 	"""

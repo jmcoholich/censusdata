@@ -20,7 +20,13 @@ def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt
 			'old' for old, 'new' for new, '' to use default. This option generally shouldn't
 			need to be specified but can be helpful if download problems are encountered.
 	"""
-	if src[:4] == 'acs1' or src[:4] == 'acs5' or src[:5] == 'acsse':
+	# API call for census data
+	# https://api.census.gov/data/2020/dec/pl?get=NAME,P2_001N&for=place:17036&in=state:48
+
+	if src == 'census_2020':
+		presrc = 'dec/'
+		src = 'pl'
+	elif src[:4] == 'acs1' or src[:4] == 'acs5' or src[:5] == 'acsse':
 		if endpt == 'new': presrc = 'acs/'
 		elif endpt == 'old': presrc = ''
 		elif endpt == '': presrc = 'acs/' if year >= 2010 else ''
