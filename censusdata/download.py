@@ -7,7 +7,7 @@ import pandas as pd
 from collections import OrderedDict
 import requests
 
-def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt = ''):
+def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt = '', session=None):
 	"""Request data from Census API. Returns data in ordered dictionary. Called by `geographies()` and `download()`.
 
 	Args:
@@ -49,7 +49,10 @@ def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt
 		subject = ''
 
 	url = baseurl + str(year) + '/' + presrc + src + subject + '?' + '&'.join('='.join(param) for param in params.items())
-	r = requests.get(url)
+	if session:
+		r = session.get(url)
+	else:
+		r = requests.get(url)
 	try:
 		data = r.json()
 	except:
@@ -59,7 +62,7 @@ def _download(src, year, params, baseurl = 'https://api.census.gov/data/', endpt
 		rdata[data[0][j]] = [data[i][j] for i in range(1, len(data))]
 	return rdata
 
-def geographies(within, src, year, key=None, endpt=''):
+def geographies(within, src, year, key=None, endpt='', session=None):
 	"""List geographies within a given geography, e.g., counties within a state.
 
 	Args:
@@ -84,12 +87,12 @@ def geographies(within, src, year, key=None, endpt=''):
 	params = {'get': 'NAME'}
 	params.update(georequest)
 	if key is not None: params.update({'key': key})
-	geo = _download(src, year, params, endpt=endpt)
+	geo = _download(src, year, params, endpt=endpt, session=session)
 	name = geo['NAME']
 	del geo['NAME']
 	return {name[i]: censusgeo([(key, geo[key][i]) for key in geo]) for i in range(len(name))}
 
-def download(src, year, geo, var, key=None, tabletype='detail', endpt=''):
+def download(src, year, geo, var, key=None, tabletype='detail', endpt='', session=None):
 	"""Download data from Census API.
 
 	Args:
@@ -131,7 +134,7 @@ def download(src, year, geo, var, key=None, tabletype='detail', endpt=''):
 		params = {'get': ','.join(['NAME']+var_chunk)}
 		params.update(georequest)
 		if key is not None: params.update({'key': key})
-		data.update(_download(src + tabletype, year, params, endpt=endpt))
+		data.update(_download(src + tabletype, year, params, endpt=endpt, session=session))
 	geodata = data.copy()
 	for key in list(geodata.keys()):
 		if key in var:
